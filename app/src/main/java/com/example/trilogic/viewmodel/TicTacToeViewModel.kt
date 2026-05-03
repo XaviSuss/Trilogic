@@ -13,6 +13,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.trilogic.model.*
 import android.util.Log
+import com.example.trilogic.network.GameApiService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,14 +40,31 @@ class TicTacToeViewModel(application: Application) : AndroidViewModel(applicatio
     private var lastDirection: Float = 0f
     private val shakeThreshold = 12f // Acceleration threshold for left/right
     private val shakeTimeWindow = 1500L // Time window to complete 3 shakes (ms)
-
     private var timerJob: kotlinx.coroutines.Job? = null
+
+    private val apiService = GameApiService.create()
 
     init {
         inicialitzarAudio()
         // S05: Prepare sensor manager safely
         inicialitzarSensors()
         startTimer()
+        fetchWelcomeMessage()
+    }
+
+    private fun fetchWelcomeMessage() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getWelcomeMessage()
+                _uiState.value = _uiState.value.copy(message = response.message)
+                Log.d("TicTacToeVM", "API Response: ${response.message}")
+            } catch (e: Exception) {
+                Log.e("TicTacToeVM", "Error en la conexión API: ${e.message}")
+                _uiState.value = _uiState.value.copy(
+                    message = "Modo Offline: No se pudo conectar al servidor"
+                )
+            }
+        }
     }
 
     private fun startTimer() {

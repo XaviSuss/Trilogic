@@ -6,6 +6,7 @@ import com.example.trilogic.model.User
 import com.example.trilogic.model.UserRepository
 import com.example.trilogic.model.db.UserDao
 import com.example.trilogic.navigation.AppScreens
+import com.example.trilogic.network.GameApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,8 @@ data class LoginUiState(
     val password: String = "",
     val message: String = "",
     val errorMsg: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val apiMessage: String = "" // Nuevo campo para el mensaje de la API
 )
 
 class LoginViewModel : ViewModel() {
@@ -28,6 +30,26 @@ class LoginViewModel : ViewModel() {
 
     private val _navigationChannel = Channel<String>()
     val navigationChannel = _navigationChannel.receiveAsFlow()
+
+    private val apiService = GameApiService.create()
+
+    fun testConnection() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(apiMessage = "Connectant...")
+            try {
+                val response = apiService.getWelcomeMessage()
+                _uiState.value = _uiState.value.copy(
+                    apiMessage = "Èxit: ${response.message}"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+                _uiState.value = _uiState.value.copy(
+                    apiMessage = "Error: ${e.localizedMessage}"
+                )
+            }
+        }
+    }
 
     fun onUsernameChange(input: String) {
         _uiState.value = _uiState.value.copy(username = input, message = "", errorMsg = "")

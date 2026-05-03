@@ -19,7 +19,8 @@ fun ScreenLogin(
     onPasswordChange: (String) -> Unit,
     onRegisterClick: () -> Unit,
     onLoginClick: () -> Unit,
-    onCloseClick: () -> Unit
+    onCloseClick: () -> Unit,
+    onTestApiClick: () -> Unit = {} // Nuevo callback
 ) {
     // Custom Colors
     val deepBlue = Color(0xFF1A237E)
@@ -91,6 +92,29 @@ fun ScreenLogin(
 
         TextButton(onClick = onCloseClick) {
             Text("Cerrar Aplicación", color = Color.Red)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón de prueba de conexión API
+        Button(
+            onClick = onTestApiClick,
+            colors = ButtonDefaults.buttonColors(containerColor = deepBlue),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Probar Conexión API", color = Color.White)
+        }
+
+        if (state.apiMessage.isNotEmpty()) {
+            Text(
+                text = state.apiMessage,
+                color = if (state.apiMessage.contains("Error")) Color.Red else Color(0xFF1B5E20),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .background(if (state.apiMessage.contains("Error")) Color(0xFFFFEBEE) else Color(0xFFE8F5E9))
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            )
         }
 
         if (state.errorMsg.isNotEmpty()) {

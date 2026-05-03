@@ -47,7 +47,8 @@ fun AppNavigation(
                 onPasswordChange = vm::onPasswordChange,
                 onRegisterClick = { vm.onRegisterClick(dao) },
                 onLoginClick = { vm.onLoginClick(dao) },
-                onCloseClick = onCloseApp
+                onCloseClick = onCloseApp,
+                onTestApiClick = vm::testConnection
             )
         }
 
